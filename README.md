@@ -31,6 +31,12 @@ Im currently working on creating Crim-VM, the virtual machine to which the Synta
 
 When that is done, I'll maybe try to improve many of the things I've done so far, including better organization of the code and commenting.
 
+## Objectives
+
+Crim's final syntax isn't really decided yet. I'm aiming towards a C-like language with some inspiration on python for now. This will probably change throughout development.
+
+In general, my objectives with Crim are to be defined since I'm currently more focused on making it do something.
+
 ------------
 
 _Thanks for passing by!_
