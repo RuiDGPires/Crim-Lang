@@ -1,3 +1,9 @@
+/*
+ * THIS ISN'T MY PROPERTY.
+ * THIS WAS COPY PASTED FROM http://www.azillionmonkeys.com/qed/hash.html
+ * CAN BE CHANGED LATER ON
+*/
+
 #include "superfasthash.h"
 
 unsigned long int SuperFastHash (const char * data, int len) {
