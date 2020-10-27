@@ -2,7 +2,7 @@
 
 A small custom programming language interpreter.
 
-## WARNING
+## Disclaimer
 
 This is a personal project project and not meant to be a full fledged programming language, this is being done for fun and personal interest.
 
@@ -14,7 +14,7 @@ There was no extensive testing yet, so there will be a lot of bugs.
 
 -------------
 
-## THIS IS A WORK IN PROGRESS 
+## This is a work in progress 
 
 Not everything will be working as it should.
 
