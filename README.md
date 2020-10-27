@@ -1,8 +1,10 @@
 # Crim-Lang
 
+A small custom programming language interpreter.
+
 ## WARNING
 
-This is a personal project project and not meant to be a full fledged programming language, this is being done just for fun and personal interest.
+This is a personal project project and not meant to be a full fledged programming language, this is being done for fun and personal interest.
 
 Code is messy and yet to be commented.
 
