@@ -5,8 +5,8 @@
 #include "tokeniser/lexer.h"
 #include "parser/parser.h"
 #include "parser/syntaxtree.h"
-#include "evaluator/hashtable/hashtable.h"
-#include "evaluator/hashtable/linkedlistint.h"
+#include "vm/hashtable/hashtable.h"
+#include "vm/hashtable/linkedlistint.h"
 
 #define MAXCHARS 100
 

@@ -37,7 +37,7 @@ int isStringNumber(char *string){
         if ((string[i] < '0') || (string[i] > '9'))
             return 0;
     }
-    return 1
+    return 1;
 }
 
 VM_t vmCreate(){
@@ -105,13 +105,8 @@ void vmRun(VM_t vm){
                 
                 break;
             case vSUB:
-                vm->r1 = vmStackPop(vm);
-                vm->r2 = vmStackPop(vm);
-                vmStackPush(vm->r2 - vm->r1);
+                
                 break;
-            case vSTR:
-                if (!(isStringNumber(current_op.arg1)))
-                    fprintf(stderr,"STORE: ")
             
         }
     }
