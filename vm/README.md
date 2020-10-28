@@ -54,7 +54,7 @@ _Everytime a condition is used, the compared value is popped_
 | vPUSH         | register          | Push the value in _register_ to the stack                                                  |
 | vPOP          | register          | Pop from the stack to _register_                                                           |
 | | |
-| vMVI          | reg               | Pushes and stores value in _reg_                                                           |
+| vMVI          | reg ,val          | Stores _val_ in _reg_                                                           |
 | vMOV          | reg1, reg2        | Sets _reg1_ to the value of _reg2_                                                         |
 | | |
 | vLOAD         | reg1, reg2        | Set _reg1_ to the value stored in adress _reg2_                                            |

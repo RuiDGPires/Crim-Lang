@@ -30,7 +30,7 @@ struct vm{
     VM_op_t *mem; // Instruction memory
     int ic; // Instruction counter
     int running;
-    int regs[6];
+    int regs[pc+1];
 };
 
 int isStringNumber(char *string){
@@ -47,7 +47,8 @@ VM_t vmCreate(){
     vm->sp = 0;
     vm->ic = 0;
     vm->tp = 0;
-    vm->regs[pc] = 0;
+    for (int i = 0; i < pc + 1; i++)
+        vm->regs[i] = 0;
     vm->running = 0;
     vm->stack = (int *) malloc(sizeof(int) * STACK_SIZE);
     vm->table = (int *) malloc(sizeof(int) * TABLE_SIZE);
@@ -73,15 +74,22 @@ void vmAddOp(VM_t vm, VM_op_code op, char *arg1, char *arg2){
         exit(EXIT_FAILURE);
     }
     vm->mem[vm->ic].op = op;
-    vm->mem[vm->ic].arg1 = strdup(arg1);
-    vm->mem[vm->ic].arg1 = strdup(arg2);
+    if (arg1 != NULL)
+        vm->mem[vm->ic].arg1 = strdup(arg1);
+    else 
+        vm->mem[vm->ic].arg1 = NULL;
+    if (arg2 != NULL)
+        vm->mem[vm->ic].arg2 = strdup(arg2);
+    else 
+        vm->mem[vm->ic].arg2     = NULL;
     vm->ic++;
 }
 
 VM_op_t vmGetOp(VM_t vm){
-    if (vm->regs[pc] == vm->ic - 1)
+    if (vm->regs[pc] == vm->ic ){
         vm->running = 0;
         return PROGRAM_END;
+    }
     return vm->mem[vm->regs[pc]++];
 }
 
@@ -90,7 +98,7 @@ void vmStackPush(VM_t vm, int val){
 }
 
 int vmStackPop(VM_t vm){
-    return vm->stack[vm->sp--];
+    return vm->stack[--vm->sp];
 }
 
 int vmRegTrans(char *string){
@@ -115,10 +123,6 @@ void vmRun(VM_t vm){
     while (vm->running){
         current_op = vmGetOp(vm);
         switch (current_op.op){
-            default:
-                fprintf(stderr,"UNKOWN OPERATION\n");
-                exit(EXIT_FAILURE);
-                break;
             case vNAME:
                 envAdd(vm->env,current_op.arg1, vmStackPop(vm));
                 break;
@@ -144,11 +148,17 @@ void vmRun(VM_t vm){
                 envGet(&n, vm->env, current_op.arg1);
                 vmStackPush(vm, n);
                 break;
+            case vPUSH:
+                vmStackPush(vm,vm->regs[vmRegTrans(current_op.arg1)]);
+                break;
+            case vPOP:
+                vm->regs[vmRegTrans(current_op.arg1)] = vmStackPop(vm);
+                break;
             case vADD:
                 vmStackPush(vm, vmStackPop(vm) + vmStackPop(vm));
                 break;
             case vMVI:
-                vm->regs[vmRegTrans(current_op.arg1)] = vmStackPop(vm);
+                vm->regs[vmRegTrans(current_op.arg1)] = atoi(current_op.arg2);
                 break;
             case vMOV:
                 vm->regs[vmRegTrans(current_op.arg1)] = vm->regs[vmRegTrans(current_op.arg2)];
@@ -162,14 +172,20 @@ void vmRun(VM_t vm){
             case vPRINT:
                 printf("%x\n",vm->regs[vmRegTrans(current_op.arg1)]);
                 break;
+            case vEXIT:
+                break;
+            default:
+                fprintf(stderr,"UNKOWN OPERATION %d\n", current_op.op);
+                exit(EXIT_FAILURE);
+                break;
         }
     }
 }
 
 void vmPrint(VM_t vm){
-    printf("######################\n# INSTRUCTION MEMORY #\n#####################\n");
+    printf("######################\n# INSTRUCTION MEMORY #\n######################\n");
     for (int i = 0; i < vm->ic; i++){
-        printf("== %d == \t| %d ", i, vm->mem[i].op);
+        printf("== %03d == | %d ", i, vm->mem[i].op);
         if (vm->mem[i].arg1  != NULL)
             printf("%s ", vm->mem[i].arg1);
         if (vm->mem[i].arg2 != NULL)
@@ -177,19 +193,20 @@ void vmPrint(VM_t vm){
         printf("\n");
     }
 
-    printf("\n######################\n#    REGISTERS    #\n#####################\n");
-    for (int i = 0; i < 6; i++){
-        printf("== R%d == \t| %d\n", i, vm->regs[i]);
+    printf("\n######################\n#     REGISTERS      #\n######################\n");
+    for (int i = 0; i < pc; i++){
+        printf("== R%d == | %d\n", i+1, vm->regs[i]);
     }
+    printf("== PC == | %d\n", vm->regs[pc]);
 
-    printf("\n######################\n#  TABLE MEMORY   #\n#####################\n");
+    printf("\n######################\n#    TABLE MEMORY    #\n######################\n");
     for (int i = 0; i < vm->tp; i++){
-        printf("== %d == \t| %d\n", i, vm->table[i]);
+        printf("== %03d == | %d\n", i, vm->table[i]);
     }
 
-    printf("\n######################\n#      STACK      #\n#####################\n");
+    printf("\n######################\n#       STACK        #\n######################\n");
     for (int i = vm->sp - 1; i >= 0 ; i--){
-        printf("[ %d ]\n", vm->stack[i]);
+        printf("[ %03d ]\n", vm->stack[i]);
     }
     
 }

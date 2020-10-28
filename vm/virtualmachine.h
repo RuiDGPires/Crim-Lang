@@ -6,4 +6,14 @@ typedef enum vm_operation_code{vNAME, vTAB, vGETN, vSETN, vBR, vJMP, vJAL, vRET,
 
 typedef struct vm *VM_t;
 
+VM_t vmCreate();
+
+void vmFree(VM_t vm);
+
+void vmAddOp(VM_t vm, VM_op_code op, char *arg1, char *arg2);
+
+void vmRun(VM_t vm);
+
+void vmPrint(VM_t vm);
+
 #endif

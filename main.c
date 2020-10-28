@@ -5,8 +5,7 @@
 #include "tokeniser/lexer.h"
 #include "parser/parser.h"
 #include "parser/syntaxtree.h"
-#include "vm/hashtable/hashtable.h"
-#include "vm/hashtable/linkedlistint.h"
+#include "vm/virtualmachine.h"
 
 #define MAXCHARS 100
 
@@ -72,12 +71,22 @@ int main(int argc,char *argv[]){
     parseArgs(argc, argv);
 
     /* Create a token list from the raw code */
-    Link token_list = tokenParse(raw_code);
-    free(raw_code);
+    //Link token_list = tokenParse(raw_code);
+    //free(raw_code);
     /* Create a syntax tree with the token list */
-    stLink syntax_tree = program(token_list);
-    tokenListFree(token_list);
-    sTreePrint(syntax_tree);
-    sTreeFree(syntax_tree);
+    //stLink syntax_tree = program(token_list);
+    //tokenListFree(token_list);
+    //sTreePrint(syntax_tree);
+    //sTreeFree(syntax_tree);
 
+    VM_t vm = vmCreate();
+    vmAddOp(vm, vMVI, "R1", "2");
+    vmAddOp(vm, vMVI, "R2", "3");
+    vmAddOp(vm, vPUSH, "R1", NULL);
+    vmAddOp(vm, vPUSH, "R2", NULL);
+    vmAddOp(vm, vADD, NULL, NULL);
+    vmAddOp(vm, vPOP, "R1", NULL);
+    vmRun(vm);
+    vmPrint(vm);
+    vmFree(vm);
 }
