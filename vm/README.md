@@ -2,7 +2,7 @@
 # CRIM-VIRTUAL MACHINE BY RUI PIRES 
 
 
-### CRIM-VM instructions
+Changing to a stack machine
 
 _All names start with a lowercase 'v' meaning VIRTUAL_
 
