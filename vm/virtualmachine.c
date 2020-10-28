@@ -20,7 +20,7 @@ typedef struct vm_op{
 const VM_op_t PROGRAM_END = {vEXIT, NULL,NULL};
 
 struct vm{
-    int ip; // Instruction pointer
+    int pc; // Program  counter
     int sp; // Stack pointer
     int *stack; // Stact memory
     Env env;  // Environment
@@ -28,7 +28,7 @@ struct vm{
     VM_op_t *mem; // Instruction memory
     int ic; // Instruction counter
     int running;
-    int r1, r2, r3, r4, r5;
+    int regs[5];
 };
 
 int isStringNumber(char *string){
@@ -42,7 +42,7 @@ int isStringNumber(char *string){
 
 VM_t vmCreate(){
     VM_t vm = (VM_t) malloc(sizeof(struct vm));
-    vm->ip = -1;
+    vm->pc = -1;
     vm->sp = 0;
     vm->ic = 0;
     vm->running = 0;
@@ -76,11 +76,11 @@ void vmAddOp(VM_t vm, VM_op_code op, char *arg1, char *arg2){
 }
 
 VM_op_t vmGetOp(VM_t vm){
-    vm->ip++;
-    if (vm->ip == vm->ic)
+    vm->pc++;
+    if (vm->pc == vm->ic)
         vm->running = 0;
         return PROGRAM_END;
-    return vm->mem[vm->ip];
+    return vm->mem[vm->pc];
 }
 
 void vmStackPush(VM_t vm, int val){
@@ -101,12 +101,21 @@ void vmRun(VM_t vm){
                 fprintf(stderr,"UNKOWN OPERATION");
                 exit(EXIT_FAILURE);
                 break;
+            case vNAME:
+                envAdd(vm->env,current_op.arg1, vmStackPop(vm));
+                break;
+            case vSETN:
+                envSet(vm->env,current_op.arg1, vmStackPop(vm));
+                break;
+            case vGETN:
+                int n;
+                envGet(&n, vm->env, current_op.arg1);
+                vmStackPush(vm, n);
+                break;
             case vADD:
-                
+                vmStackPush(vm, vmStackPop(vm) + vmStackPop(vm));
                 break;
-            case vSUB:
-                
-                break;
+            
             
         }
     }

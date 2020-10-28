@@ -9,6 +9,8 @@ void envFree(Env env);
 
 int envGet(int *val, Env env, char *name);
 
+void envSet(Env env, char *name, int val);
+
 void envAdd(Env env, char *name, int val);
 
 Env envGetParent(Env env);
