@@ -37,7 +37,9 @@ When that is done, I'll maybe try to improve many of the things I've done so far
 
 Crim's final syntax isn't really decided yet. I'm aiming towards a C-like language with some inspiration on python for now. This will probably change throughout development.
 
-In general, my objectives with Crim are to be defined since I'm currently more focused on making it do something.
+In general, my objectives with Crim are still to be defined, since I'm currently more focused on making it actually do something.
+
+For now, Crim will be an interpreted and probably dynamically-typed language with no goal purpose.
 
 ------------
 
