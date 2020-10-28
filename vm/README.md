@@ -10,11 +10,12 @@ _All names start with a lowercase 'v' meaning VIRTUAL_
 
 | Registers   | Use    |
 |:-----------:|:------:|
-| R1          | Normal use
-| R2          | Normal use
-| R3          | Normal use
-| R4          | Normal use
-| R5          | Program Counter storing
+| R1          | Normal use |
+| R2          | Normal use |
+| R3          | Normal use |
+| R4          | Normal use |
+| R5          | Program Counter storing |
+| PC (R6)     | Program Counter         |
 
 ### Conditions
 | Conditions   | Meaning      |
@@ -43,6 +44,7 @@ _Everytime a condition is used, the compared value is popped_
 | vBR           | name, cond        | Brances to _name_                                                                          |
 | vJMP          | name, cond        | Jumps tp _name_, creates a new environment                                                 |
 | vJAL          | name, cond        | Same as jump but saves current PC                                                          |
+| vRET          |                   | Returns to previous env and previous PC                                                    |
 | | |
 | vADD          |                   | Adds the last two values from the stack (pop) and pushes the result. Updates flags         |
 | vSUB          |                   | Same as vADD but substracts the first popped value from the last                           |

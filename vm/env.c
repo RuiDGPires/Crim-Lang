@@ -43,5 +43,7 @@ void envSet(Env env, char *name, int val){
 }
 
 Env envGetParent(Env env){
-    return env->parent;
+    Env a = env->parent;
+    envFree(env);
+    return a;
 }
