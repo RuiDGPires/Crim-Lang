@@ -7,6 +7,8 @@
 #include "parser/syntaxtree.h"
 #include "vm/virtualmachine.h"
 
+#include <stdint.h>
+
 #define MAXCHARS 100
 
 FILE *file;
@@ -71,28 +73,13 @@ int main(int argc,char *argv[]){
     parseArgs(argc, argv);
 
     /* Create a token list from the raw code */
-    Link token_list = tokenParse(raw_code);
-    free(raw_code);
+    //Link token_list = tokenParse(raw_code);
+    //free(raw_code);
     /* Create a syntax tree with the token list */
-    stLink syntax_tree = program(token_list);
-    tokenListFree(token_list);
-    sTreePrint(syntax_tree);
-    sTreeFree(syntax_tree);
+    //stLink syntax_tree = program(token_list);
+    //tokenListFree(token_list);
+    //sTreePrint(syntax_tree);
+    //sTreeFree(syntax_tree);
 
-    /*
-    VM_t vm = vmCreate();
-    vmAddOp(vm, vMVI, "R1", "2");
-    vmAddOp(vm, vPUSH, "R1", NULL);
-    vmAddOp(vm, vNAME, "X", NULL);
-    vmAddOp(vm, vMVI, "R2", "5");
-    vmAddOp(vm, vNAME, "X", NULL);
-    vmAddOp(vm, vMVI, "R1", "1");
-    vmAddOp(vm, vMVI, "R2", "5");
-    vmAddOp(vm, vPUSH, "R2", NULL);
-    vmAddOp(vm, vGETN, "X", NULL);
-    vmAddOp(vm, vPOP, "R3", NULL);
-    vmRun(vm);
-    vmPrint(vm);
-    vmFree(vm);
-    */
+    printf("char: %d | int16: %d\n", sizeof(char), sizeof(int16_t));    
 }

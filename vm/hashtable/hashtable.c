@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "hashtable.h"
 #include "superfasthash.h"
 #include "linkedlistint.h"
