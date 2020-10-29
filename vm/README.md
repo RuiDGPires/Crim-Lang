@@ -1,8 +1,16 @@
 
 # CRIM-VIRTUAL MACHINE BY RUI PIRES 
 
+### VM Registers
 
-Changing to a stack machine
+| Registers   | Use    |
+|:-----------:|:------:|
+| R1          | Normal use |
+| R2          | Normal use |
+| R3          | Normal use |
+| R4          | Normal use |
+| R5          | Program Counter storing |
+| PC (R6)     | Program Counter         |
 
 _All names start with a lowercase 'v' meaning VIRTUAL_
 
@@ -35,10 +43,10 @@ _Everytime a condition is used, the compared value is popped_
 | vJAL          | name, cond        | Same as jump but saves current PC                                                          |
 | vRET          |                   | Returns to previous env and previous PC                                                    |
 | | |
-| vADD          |                   | Adds the last two values from the stack (pop) and pushes the result. Updates flags         |
-| vSUB          |                   | Same as vADD but substracts the first popped value from the last                           |
-| vMUL          |                   | Same as vADD but multiplies                                                                |
-| vDIV          |                   | Same as vSUB but divides                                                                   |
+| vADD          | reg1, reg2        | Adds the values from both registers and stores the result in the first                     |
+| vSUB          | reg1, reg2        | Same as vADD but substracts _reg2_ from _reg1_                                             |
+| vMUL          | reg1, reg2        | Same as vADD but multiplies                                                                |
+| vDIV          | reg1, reg2        | Same as vSUB but divides                                                                   |
 | | |
 | vPUSH         | register          | Push the value in _register_ to the stack                                                  |
 | vPOP          | register          | Pop from the stack to _register_                                                           |
@@ -52,10 +60,10 @@ _Everytime a condition is used, the compared value is popped_
 | vPRINT        | register          | Prints the value in adress _register_                                                      |
 | vPRINTN       | reg1, reg2        | Prints _reg2_ charaters in memory starting from adress _reg1_                              |
 | | |
-| vAND          |                   | Same as vADD but performs logical and                                                      |
-| vOR           |                   | Same as vAND but performs logical or                                                       |
-| vXOR          |                   | Same as vAND but performs logical xor                                                      |
-| vNOT          |                   | Pops the stack and pushes logical not'ed value                                             |
+| vAND          | reg1, reg2        | Same as vADD but performs logical and                                                      |
+| vOR           | reg1, reg2        | Same as vAND but performs logical or                                                       |
+| vXOR          | reg1, reg2        | Same as vAND but performs logical xor                                                      |
+| vNOT          | reg1              |                                                                                            |
 | | |
-| vRSHIFT       |                   | Pops the stack and pushes right-shifted value                                              |
-| vLSHIFT       |                   | Same as vRSHIFT but left-shift                                                             |
+| vRSHIFT       | register          | right shifts the value in _register_                                                       |
+| vLSHIFT       | register          | Same as vRSHIFT but left-shift                                                             |
