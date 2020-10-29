@@ -3,28 +3,29 @@
 
 ### VM Registers
 
-| Registers   | Use    |
-|:-----------:|:------:|
-| R1          | Normal use |
-| R2          | Normal use |
-| R3          | Normal use |
-| R4          | Normal use |
-| R5          | Program Counter storing |
-| PC (R6)     | Program Counter         |
+| Registers   | Use             |
+|:-----------:|:---------------:|
+| R1          | General use     |
+| R2          | General use     |
+| R3          | General use     |
+| R4          | Return value    |
+| R5          | Return Adress   |
+| PC (R6)     | Program Counter |
+| RE (R7)     | Flag Register   |
 
 _All names start with a lowercase 'v' meaning VIRTUAL_
 
-### Conditions
-| Conditions   | Meaning      |
-|:------------:|:------------:|
-| N            | Negative     |
-| ZERO         | Zero         |
-| NZ           | Not Zero     |
-| NN           | Not Negative |
-| P            | Positive     |
-| NP           | Not Positive |
-| T            | True         |
-| F            | False        |
+### State Flags
+
+| Flags        | Description        |
+|:------------:|:------------------:|
+| E            | Interrupts enabled |
+| O            | Overflow           |
+| C            | Carry              |
+| Z            | Zero               |
+| N            | Negative           |
+
+
 
 _Everytime a condition is used, the compared value is popped_
 
@@ -33,10 +34,7 @@ _Everytime a condition is used, the compared value is popped_
 | Instructions  | Arguments         | Behaviour                                                                                  | 
 | :-----------: |:-----------------:| :-----------------------------------------------------------------------------------------:|
 | | |
-| vNAME         | name              | Initializes a named value in the memory of the current environment                         |
-| vTAB          | n                 | Reserves _n_ spaces in memory and pushes the adress of the first                           |
-| vGETN         | name              | Pushes the value stored in the env. named _name_. This value will be a pointer to memory   |
-| vSETN         | name              | Sets the named value in env to popped value                                                |
+| vEQU          | label, value      | _label EQU value_ Associates value to name _label_                                         | 
 | | |
 | vBR           | name, cond        | Brances to _name_                                                                          |
 | vJMP          | name, cond        | Jumps tp _name_, creates a new environment                                                 |
@@ -51,7 +49,7 @@ _Everytime a condition is used, the compared value is popped_
 | vPUSH         | register          | Push the value in _register_ to the stack                                                  |
 | vPOP          | register          | Pop from the stack to _register_                                                           |
 | | |
-| vMVI          | reg ,val          | Stores _val_ in _reg_                                                           |
+| vMVI          | reg ,val          | Stores _val_ in _reg_                                                                      |
 | vMOV          | reg1, reg2        | Sets _reg1_ to the value of _reg2_                                                         |
 | | |
 | vLOAD         | reg1, reg2        | Set _reg1_ to the value stored in adress _reg2_                                            |
