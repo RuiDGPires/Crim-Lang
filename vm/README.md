@@ -6,17 +6,6 @@ Changing to a stack machine
 
 _All names start with a lowercase 'v' meaning VIRTUAL_
 
-### VM Registers
-
-| Registers   | Use    |
-|:-----------:|:------:|
-| R1          | Normal use |
-| R2          | Normal use |
-| R3          | Normal use |
-| R4          | Normal use |
-| R5          | Program Counter storing |
-| PC (R6)     | Program Counter         |
-
 ### Conditions
 | Conditions   | Meaning      |
 |:------------:|:------------:|

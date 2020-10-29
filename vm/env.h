@@ -13,6 +13,8 @@ void envSet(Env env, char *name, int val);
 
 void envAdd(Env env, char *name, int val);
 
+void envPrint(Env env);
+
 Env envGetParent(Env env);
 
 #endif

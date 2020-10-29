@@ -24,9 +24,9 @@ int envGet(int *val, Env env, char *name){
     if (htGet(val,env->table,name))
         return 1;
     else{
-        if (env->parent != NULL)
-            return envGet(val,env->parent, name);
-        else
+        //if (env->parent != NULL)
+            //return envGet(val,env->parent, name);
+        //else
             return 0;
     }
 }
@@ -40,6 +40,10 @@ void envSet(Env env, char *name, int val){
         fprintf(stderr,"Error setting variable: not initialized\n");
         exit(EXIT_FAILURE);
     }
+}
+
+void envPrint(Env env){
+    htPrint(env->table);
 }
 
 Env envGetParent(Env env){

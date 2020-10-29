@@ -124,10 +124,16 @@ void vmRun(VM_t vm){
         current_op = vmGetOp(vm);
         switch (current_op.op){
             case vNAME:
-                envAdd(vm->env,current_op.arg1, vmStackPop(vm));
+                vm->table[vm->tp] = vmStackPop(vm);
+                envAdd(vm->env,current_op.arg1, vm->tp++);
                 break;
             case vSETN:
-                envSet(vm->env,current_op.arg1, vmStackPop(vm));
+                envGet(&n, vm->env,current_op.arg1);
+                vm->table[n] = vmStackPop(vm);
+                break;
+            case vGETN:
+                envGet(&n, vm->env, current_op.arg1);
+                vmStackPush(vm, vm->table[n]);
                 break;
             case vBR: // Missing conditional jumps
                 envGet(&n, vm->env, current_op.arg1); // Get named instruction adress from memory
@@ -143,10 +149,6 @@ void vmRun(VM_t vm){
             case vRET:
                 vm->env = envGetParent(vm->env);
                 vm->regs[pc] = vm->regs[R5];
-                break;
-            case vGETN:
-                envGet(&n, vm->env, current_op.arg1);
-                vmStackPush(vm, n);
                 break;
             case vPUSH:
                 vmStackPush(vm,vm->regs[vmRegTrans(current_op.arg1)]);
@@ -209,4 +211,7 @@ void vmPrint(VM_t vm){
         printf("[ %03d ]\n", vm->stack[i]);
     }
     
+    printf("\n######################\n#    ENVIRONMENT     #\n######################\n");
+    envPrint(vm->env);
+
 }
