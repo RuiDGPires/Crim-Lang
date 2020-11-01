@@ -11,6 +11,8 @@
 #define STACK_SIZE 100
 #define MEM_SIZE 500
 #define TABLE_SIZE 200
+#define MAX_LINE_SIZE 120
+#define MAX_WORD_SIZE 50
 
 #define FLAG_E (i8) 0x10
 #define FLAG_O (i8) 0x08
@@ -131,6 +133,8 @@ void vmAddOp(VM_t vm, char *label, int op, char *arg1, char *arg2){
         if (label[length -1] = ':'){
             label[length -1] = '\0';
             envAdd(vm->env, label, vm->ip);
+        }else{
+            //if (op == vEQU || op == vWORD)
         }
     }
 
@@ -162,3 +166,35 @@ void vmAddOp(VM_t vm, char *label, int op, char *arg1, char *arg2){
     vm->ic++;
 }
 
+void stringToOp(char *string){
+    char buffer[3][MAX_WORD_SIZE];
+    if (string == NULL)
+        return;
+
+    for (int i=0, j = 0; string[i] != '\0'; i++){
+        if (i > 0){
+            if (string[i] == ' ' && string[i-1] != ' '){
+                if (++j == 3)
+                    return;
+                continue;
+            }
+
+        }
+    }
+}
+
+void vmLoadCommands(VM_t vm, char *string){
+    char buffer[MAX_LINE_SIZE];
+    int i, j;
+    
+    for(i = 0, j = 0; string[i] != '\0'; i++){
+        if (string[i] == '\n'){
+            j = 0;
+            printf("%s\n", buffer);
+        }
+        else {
+            buffer[j++] = string[i];
+        }
+    }
+    printf("%s\n", buffer);
+}

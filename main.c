@@ -81,5 +81,7 @@ int main(int argc,char *argv[]){
     //sTreePrint(syntax_tree);
     //sTreeFree(syntax_tree);
 
-    printf("char: %d | int16: %d\n", sizeof(char), sizeof(int16_t));    
+    VM_t vm = vmCreate();
+    vmLoadCommands(vm, "AAAAA\nBBBBB");
+    vmFree(vm);
 }
