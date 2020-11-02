@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "hashtable.h"
 #include "superfasthash.h"
 #include "linkedlistint.h"
 
-#define HT_INIT_SIZE 50
+#define HT_INIT_SIZE 53
 
 
 struct htable{
@@ -13,7 +14,12 @@ struct htable{
 };
 
 int hashFunc(char *string, int len){
-    return SuperFastHash(string,len);
+    //return SuperFastHash(string,len);
+    int sum = 0;
+    int s_len = strlen(string);
+    for (int i = 0; i < s_len; i++)
+        sum += string[i];
+    return sum % len;
 }
 
 HTable htCreate(){

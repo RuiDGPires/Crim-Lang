@@ -25,7 +25,7 @@ int envGet(int *val, Env env, char *name){
         return 1;
     else{
         //if (env->parent != NULL)
-            //return envGet(val,env->parent, name);
+        //    return envGet(val,env->parent, name);
         //else
             return 0;
     }

@@ -7,7 +7,7 @@ OFILES = tokeniser/lexer.o tokeniser/tokenlib.o parser/parser.o parser/syntaxtre
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 make: $(OFILES)
-	$(CC) -o crim $(OFILES)
+	$(CC) -o crim $(OFILES) -lm
 
 clean:
 	rm -f *.o parser/*.o tokeniser/*.o evaluator/*.o vm/*.o vm/hashtable/*.o crim

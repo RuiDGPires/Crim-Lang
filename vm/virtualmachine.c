@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
+#include <math.h>
 #include "virtualmachine.h"
 #include "hashtable/hashtable.h"
 #include "env.h"
@@ -9,209 +11,190 @@
 #define STACK_SIZE 100
 #define MEM_SIZE 500
 #define TABLE_SIZE 200
-#define pc 5
-#define R5 4
+#define MAX_LINE_SIZE 120
+#define MAX_WORD_SIZE 50
+
+#define FLAG_E (i8) 0x10
+#define FLAG_O (i8) 0x08
+#define FLAG_C (i8) 0x04
+#define FLAG_Z (i8) 0x02
+#define FLAG_N (i8) 0x01
+
+
+typedef int64_t i64;
+typedef int32_t i32;
+typedef int16_t i16;
+typedef int8_t i8;
+
+
+typedef enum registers{vR1, vR2, vR3, vR4, vR5, vPC, vRE}Register;
 
 typedef struct vm_op{
-    VM_op_code op;
-    char *arg1;
-    char *arg2;
+    i8 op;
+    i32 arg1;
+    i32 arg2;
 }VM_op_t;
 
-
-const VM_op_t PROGRAM_END = {vEXIT, NULL,NULL};
-
 struct vm{
-    int sp; // Stack pointer
-    int *stack; // Stack memory
-    Env env;  // Environment
-    int *table; // Memory table
-    int tp; // Table pointer
-    VM_op_t *mem; // Instruction memory
-    int ic; // Instruction counter
-    int running;
-    int regs[pc+1];
+    int pc;                // Program Counter
+    VM_op_t mem[MEM_SIZE]; // Instruction memory
+    int ic;                // Instruction counter
+    int ip;                // Instruction pointer
+    i32 stack[STACK_SIZE]; // stack memory
+    int sp;                // Stack pointer
+    Env env;        // Hashtable for global keywords
+    i32 table[TABLE_SIZE]; // Table memory
+    int tp;                // Table pointer
+    i32 regs[7];           // Registers
 };
 
-int isStringNumber(char *string){
-    int len = strlen(string);
-    for (int i = 0; i < len; i++){
-        if ((string[i] < '0') || (string[i] > '9'))
-            return 0;
-    }
-    return 1;
+void vmClearFlags(VM_t vm){
+    vm->regs[6] = 0;
+}
+
+void vmSetFlag(VM_t vm, i8 flag){
+    vm->regs[6] = vm->regs[6] | flag;
 }
 
 VM_t vmCreate(){
     VM_t vm = (VM_t) malloc(sizeof(struct vm));
-    vm->sp = 0;
+    vm->pc = 0;
     vm->ic = 0;
-    vm->tp = 0;
-    for (int i = 0; i < pc + 1; i++)
-        vm->regs[i] = 0;
-    vm->running = 0;
-    vm->stack = (int *) malloc(sizeof(int) * STACK_SIZE);
-    vm->table = (int *) malloc(sizeof(int) * TABLE_SIZE);
-    vm->mem = (VM_op_t *) malloc(sizeof(VM_op_t) * MEM_SIZE);
+    vm->ip = 0;
+    vm->sp = -1;
     vm->env = envCreate(NULL);
+    vm->tp = 0;
+    for (int i = 0; i < 7; i++)
+        vm->regs[i] = 0;
+    return vm;
 }
 
 void vmFree(VM_t vm){
     envFree(vm->env);
-    free(vm->stack);
-    for (int i = 0; i < vm->ic ;i++){
-        free(vm->mem[i].arg1);
-        free(vm->mem[i].arg2);
-    }
-    free(vm->mem);
-    free(vm->table);
     free(vm);
 }
 
-void vmAddOp(VM_t vm, VM_op_code op, char *arg1, char *arg2){
-    if (vm->ic == MEM_SIZE){
-        fprintf(stderr,"vmAddOp: instruction count exceeds memory size");
-        exit(EXIT_FAILURE);
+int vmStackPop(VM_t vm){
+    return vm->stack[vm->sp--];
+}
+
+int vmStackPush(VM_t vm){
+    return vm->stack[++vm->sp];
+}
+
+int hexToDec(char c){
+    if (c >= '0' && c <= '9')
+        return (int)c - (int)'0';
+    if (c >= 'A' && c <= 'F')
+        return (int)c - (int)'A' + 10;
+    if (c >= 'a' && c <= 'f')
+        return (int)c - (int)'a' + 10;  
+    return -1;
+}
+
+int vmIsNumber(char *string, int *n){
+    int len = strlen(string);
+    int i = 0;
+    int ret = 0;
+    if (string[0] == '-') i++; 
+    if (len > 2)
+        if (string[0] == '0' && string[1] == 'x'){
+            int a;
+            for (i = 2 ; i < len; i++){
+                a = hexToDec(string[i]);
+                if (a == -1)
+                    return 0;
+                ret += ((int) pow(16, len - i -2))*a;
+            }
+            if (n != NULL)
+                *n = ret;
+            return 1;
+        }
+    for (; i < len; i++){
+        if (string[i] >= '0' && string[i] <= '9'){
+            ret += ((int) pow(10, len - i -2))*((int)string[i]- (int)'0');
+        }else{
+            return 0;
+        }
+        
     }
+    if (n != NULL)
+        *n = ret;
+    return 1;
+}
+
+void vmAddOp(VM_t vm, char *label, int op, char *arg1, char *arg2){
+    int n;
+    int length;
     vm->mem[vm->ic].op = op;
-    if (arg1 != NULL)
-        vm->mem[vm->ic].arg1 = strdup(arg1);
-    else 
-        vm->mem[vm->ic].arg1 = NULL;
-    if (arg2 != NULL)
-        vm->mem[vm->ic].arg2 = strdup(arg2);
-    else 
-        vm->mem[vm->ic].arg2     = NULL;
+
+    if (label != NULL){
+        length = strlen(label);
+        if (label[length -1] = ':'){
+            label[length -1] = '\0';
+            envAdd(vm->env, label, vm->ip);
+        }else{
+            //if (op == vEQU || op == vWORD)
+        }
+    }
+
+    if (arg1 != NULL){
+        if (vmIsNumber(arg1, &n)){
+            ;
+        }else{
+            if (envGet(&n,vm->env, arg1) == 0){
+                fprintf(stderr, "Nothing is alocated named %s\n", arg1);
+            }
+        }
+        vm->mem[vm->ic].arg1 = n;
+    }else{
+        vm->mem[vm->ic].arg1 = -1;
+    }
+
+    if (arg2 != NULL){
+        if (vmIsNumber(arg1, &n)){
+            ;
+        }else{
+            if (envGet(&n,vm->env, arg2) == 0){
+                fprintf(stderr, "Nothing is alocated named %s\n", arg2);
+            }   
+        }
+        vm->mem[vm->ic].arg2 = n;
+    }else{
+        vm->mem[vm->ic].arg2 = -1;
+    }
     vm->ic++;
 }
 
-VM_op_t vmGetOp(VM_t vm){
-    if (vm->regs[pc] == vm->ic ){
-        vm->running = 0;
-        return PROGRAM_END;
-    }
-    return vm->mem[vm->regs[pc]++];
-}
+void stringToOp(char *string){
+    char buffer[3][MAX_WORD_SIZE];
+    if (string == NULL)
+        return;
 
-void vmStackPush(VM_t vm, int val){
-    vm->stack[vm->sp++] = val;
-}
+    for (int i=0, j = 0; string[i] != '\0'; i++){
+        if (i > 0){
+            if (string[i] == ' ' && string[i-1] != ' '){
+                if (++j == 3)
+                    return;
+                continue;
+            }
 
-int vmStackPop(VM_t vm){
-    return vm->stack[--vm->sp];
-}
-
-int vmRegTrans(char *string){
-    if (strlen(string) != 2){
-        fprintf(stderr, "INVALID REGISTER\n");
-        exit(EXIT_FAILURE);
-    }
-    if ((string[0] == 'R') && (string[1] >= '1' && string[1] <= '5')){
-        return (int) string[1] - (int)'1';
-    }else if (strcmp(string, "PC") == 0){
-        return pc;
-    }else {
-        fprintf(stderr, "INVALID REGISTER\n");
-        exit(EXIT_FAILURE);
-    }
-}
-
-void vmRun(VM_t vm){
-    int n;
-    VM_op_t current_op;
-    vm->running = 1;
-    while (vm->running){
-        current_op = vmGetOp(vm);
-        switch (current_op.op){
-            case vNAME:
-                vm->table[vm->tp] = vmStackPop(vm);
-                envAdd(vm->env,current_op.arg1, vm->tp++);
-                break;
-            case vSETN:
-                envGet(&n, vm->env,current_op.arg1);
-                vm->table[n] = vmStackPop(vm);
-                break;
-            case vGETN:
-                envGet(&n, vm->env, current_op.arg1);
-                vmStackPush(vm, vm->table[n]);
-                break;
-            case vBR: // Missing conditional jumps
-                envGet(&n, vm->env, current_op.arg1); // Get named instruction adress from memory
-                vm->regs[pc] = n;
-                break;
-            case vJAL:
-                vm->regs[R5] = vm->regs[pc];
-            case vJMP: // Missing conditional jumps
-                envGet(&n, vm->env, current_op.arg1); // Get named instruction adress from memory
-                vm->regs[pc] = n;
-                vm->env = envCreate(vm->env);
-                break;
-            case vRET:
-                vm->env = envGetParent(vm->env);
-                vm->regs[pc] = vm->regs[R5];
-                break;
-            case vPUSH:
-                vmStackPush(vm,vm->regs[vmRegTrans(current_op.arg1)]);
-                break;
-            case vPOP:
-                vm->regs[vmRegTrans(current_op.arg1)] = vmStackPop(vm);
-                break;
-            case vADD:
-                vmStackPush(vm, vmStackPop(vm) + vmStackPop(vm));
-                break;
-            case vMVI:
-                vm->regs[vmRegTrans(current_op.arg1)] = atoi(current_op.arg2);
-                break;
-            case vMOV:
-                vm->regs[vmRegTrans(current_op.arg1)] = vm->regs[vmRegTrans(current_op.arg2)];
-                break;
-            case vLOAD:
-                vm->regs[vmRegTrans(current_op.arg1)] = vm->table[vm->regs[vmRegTrans(current_op.arg2)]];
-                break;
-            case vSTR:
-                vm->table[vm->regs[vmRegTrans(current_op.arg1)]] = vm->regs[vmRegTrans(current_op.arg2)];
-                break;
-            case vPRINT:
-                printf("%x\n",vm->regs[vmRegTrans(current_op.arg1)]);
-                break;
-            case vEXIT:
-                break;
-            default:
-                fprintf(stderr,"UNKOWN OPERATION %d\n", current_op.op);
-                exit(EXIT_FAILURE);
-                break;
         }
     }
 }
 
-void vmPrint(VM_t vm){
-    printf("######################\n# INSTRUCTION MEMORY #\n######################\n");
-    for (int i = 0; i < vm->ic; i++){
-        printf("== %03d == | %d ", i, vm->mem[i].op);
-        if (vm->mem[i].arg1  != NULL)
-            printf("%s ", vm->mem[i].arg1);
-        if (vm->mem[i].arg2 != NULL)
-            printf("%s", vm->mem[i].arg2);
-        printf("\n");
-    }
-
-    printf("\n######################\n#     REGISTERS      #\n######################\n");
-    for (int i = 0; i < pc; i++){
-        printf("== R%d == | %d\n", i+1, vm->regs[i]);
-    }
-    printf("== PC == | %d\n", vm->regs[pc]);
-
-    printf("\n######################\n#    TABLE MEMORY    #\n######################\n");
-    for (int i = 0; i < vm->tp; i++){
-        printf("== %03d == | %d\n", i, vm->table[i]);
-    }
-
-    printf("\n######################\n#       STACK        #\n######################\n");
-    for (int i = vm->sp - 1; i >= 0 ; i--){
-        printf("[ %03d ]\n", vm->stack[i]);
-    }
+void vmLoadCommands(VM_t vm, char *string){
+    char buffer[MAX_LINE_SIZE];
+    int i, j;
     
-    printf("\n######################\n#    ENVIRONMENT     #\n######################\n");
-    envPrint(vm->env);
-
+    for(i = 0, j = 0; string[i] != '\0'; i++){
+        if (string[i] == '\n'){
+            j = 0;
+            printf("%s\n", buffer);
+        }
+        else {
+            buffer[j++] = string[i];
+        }
+    }
+    printf("%s\n", buffer);
 }
