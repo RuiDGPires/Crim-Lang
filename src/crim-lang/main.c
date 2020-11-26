@@ -5,7 +5,6 @@
 #include "tokeniser/lexer.h"
 #include "parser/parser.h"
 #include "parser/syntaxtree.h"
-//#include "vm/virtualmachine.h"
 
 #include <stdint.h>
 
