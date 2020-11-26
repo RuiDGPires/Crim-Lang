@@ -1,0 +1,11 @@
+var a = Func(){
+    var a = Func(a,b){
+        c = a;
+    };
+};
+
+var n = 2 + a;
+
+n = 2 + 1;
+
+var b = n + 2;

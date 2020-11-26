@@ -96,7 +96,7 @@ Link tokenParse(char code[]){
                     if (isNumber(code[i])){
                         buffer[bpoint++] = code[i++];
                     }else if ((isLetter(code[i]))){
-                        fprintf(stderr, "An error ocurred while lexing, letter following number\n");
+                        printf( "An error ocurred while lexing, letter following number\n");
                         tokenListFree(token_list);
                         free(code);
                         exit(EXIT_FAILURE);
@@ -155,7 +155,7 @@ Link tokenParse(char code[]){
                     break;
             }
         }else{
-            fprintf(stderr,"TOKEN IS TOO LARGE\n");
+            printf("TOKEN IS TOO LARGE\n");
             tokenListFree(token_list);
             free(code);
             exit(EXIT_FAILURE);

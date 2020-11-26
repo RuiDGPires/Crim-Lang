@@ -23,7 +23,7 @@ char *prevValue(){
 
 /* Raise Error */
 void error(const char msg[]){
-    fprintf(stderr,"%s\n",msg);
+    printf("%s\n",msg);
     tokenListFree(head);
     exit(EXIT_FAILURE);
 }
@@ -43,7 +43,7 @@ void syntaxTreeInit(){
 void syntaxTreeBack(){
     stLink parent = sTreeGetParent(syntax_tree);
     if (parent == NULL){
-        fprintf(stderr, "SYNTAX TREE ERROR: TOO MANY BACKS");
+        printf( "SYNTAX TREE ERROR: TOO MANY BACKS");
         sTreeFree(syntax_tree);
         exit(EXIT_FAILURE);
     }else

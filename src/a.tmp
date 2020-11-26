@@ -1,0 +1,31 @@
+Program {
+   Block {
+      Assignment {
+         Identifier {
+            a
+         }
+         Operation {
+            =
+         }
+         Expression {
+            Term {
+               Factor {
+                  Number {
+                     2
+                  }
+               }
+            }
+            Operation {
+               +
+            }
+            Term {
+               Factor {
+                  Number {
+                     2
+                  }
+               }
+            }
+         }
+      }
+   }
+}

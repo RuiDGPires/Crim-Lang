@@ -5,15 +5,21 @@
 #include "tokeniser/lexer.h"
 #include "parser/parser.h"
 #include "parser/syntaxtree.h"
-#include "vm/virtualmachine.h"
+//#include "vm/virtualmachine.h"
 
 #include <stdint.h>
 
 #define MAXCHARS 100
+#define false 0
+#define true 1
 
 FILE *file;
 char nameout[MAXCHARS+1] = "a.out";
-char *raw_code;
+char *raw_code = NULL;
+const char USAGE[] = "crim [-option] <filename> [-option]\nOptions:\n\t-t <type>: option for debugging type: s (syntax); o (other)\n";
+
+int test_syntax = false;
+
 
 /* Reads a file and returns it's contents in a malloc'd string */
 char *readFile(char *file_name){
@@ -47,25 +53,37 @@ char *readFile(char *file_name){
 
 /* Parses the main function arguments */
 void parseArgs(int argc, char *argv[]){
-    if ((argc > 3)){
-        fprintf(stderr,"WRONG NUMBER OF ARGUMENTS\n");
-        exit(EXIT_FAILURE);
-    }
-    
-    if (argc == 3){
-        if (strlen(argv[2]) >= MAXCHARS){
-            printf("Warning, filename exceeds character limit\n");
-        }
-        strncpy(nameout,argv[2], MAXCHARS);
-    }
+    int i;
 
-    if (argc == 2)
-        raw_code = readFile(argv[1]); 
-    
     if (argc == 1){
-        printf("crim v0.1 | Rui Pires\n");
+        printf("crim v0.1 | Rui Pires\n%s", USAGE);
         exit(EXIT_SUCCESS);
     }
+
+    for(i = 1; i < argc; i++){
+        if (argv[i][0] != '-'){
+            if (raw_code == NULL) raw_code = readFile(argv[i]); 
+            else{
+                printf("Error, wrong argument\n");
+            }
+        } else if (strcmp(argv[i],"-t") == 0 && (i < argc)){
+            switch(argv[++i][0]){
+                case 's':
+                    test_syntax = true;
+                    break;
+                case 'o':
+                default:
+                    break;
+            }
+        }
+    }
+    if (raw_code == NULL){
+        printf("crim v0.1 | Rui Pires\n%s", USAGE);
+        exit(EXIT_SUCCESS);
+    }
+        
+    
+    
 
 }
 
@@ -73,15 +91,14 @@ int main(int argc,char *argv[]){
     parseArgs(argc, argv);
 
     /* Create a token list from the raw code */
-    //Link token_list = tokenParse(raw_code);
-    //free(raw_code);
+    Link token_list = tokenParse(raw_code);
+    free(raw_code);
     /* Create a syntax tree with the token list */
-    //stLink syntax_tree = program(token_list);
-    //tokenListFree(token_list);
-    //sTreePrint(syntax_tree);
-    //sTreeFree(syntax_tree);
+    stLink syntax_tree = program(token_list);
+    tokenListFree(token_list);
+    if (!test_syntax) sTreePrint(syntax_tree);
+    else{
 
-    VM_t vm = vmCreate();
-    vmLoadCommands(vm, "AAAAA\nBBBBB");
-    vmFree(vm);
+    }
+    sTreeFree(syntax_tree);
 }

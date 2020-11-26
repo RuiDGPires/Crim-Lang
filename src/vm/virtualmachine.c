@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
 #include <math.h>
 #include "virtualmachine.h"
 #include "hashtable/hashtable.h"
 #include "env.h"
-
+#include "defs.h"
 
 #define STACK_SIZE 100
 #define MEM_SIZE 500
@@ -14,23 +13,10 @@
 #define MAX_LINE_SIZE 120
 #define MAX_WORD_SIZE 50
 
-#define FLAG_E (i8) 0x10
-#define FLAG_O (i8) 0x08
-#define FLAG_C (i8) 0x04
-#define FLAG_Z (i8) 0x02
-#define FLAG_N (i8) 0x01
-
-
-typedef int64_t i64;
-typedef int32_t i32;
-typedef int16_t i16;
-typedef int8_t i8;
-
-
 typedef enum registers{vR1, vR2, vR3, vR4, vR5, vPC, vRE}Register;
 
 typedef struct vm_op{
-    i8 op;
+    VM_op_code op;
     i32 arg1;
     i32 arg2;
 }VM_op_t;
@@ -82,6 +68,23 @@ int vmStackPush(VM_t vm){
     return vm->stack[++vm->sp];
 }
 
+void vmPrintOp(VM_op_t op){
+    printf("%d",(int) op.op);
+    if (op.arg1 != NULL)
+        printf(" %s",op.arg1);
+    if (op.arg2 != NULL)
+        printf(" %s",op.arg2);
+    printf("\n");
+}
+
+void vmPrintMem(VM_t vm){
+    int i;
+    for(i = 0; i < vm->ic; i++){
+        vmPrintOp(vm->mem[i]);
+    }
+}
+
+
 int hexToDec(char c){
     if (c >= '0' && c <= '9')
         return (int)c - (int)'0';
@@ -123,7 +126,7 @@ int vmIsNumber(char *string, int *n){
     return 1;
 }
 
-void vmAddOp(VM_t vm, char *label, int op, char *arg1, char *arg2){
+void vmAddOp(VM_t vm, char *label, VM_op_code op, char *arg1, char *arg2){
     int n;
     int length;
     vm->mem[vm->ic].op = op;
@@ -166,35 +169,79 @@ void vmAddOp(VM_t vm, char *label, int op, char *arg1, char *arg2){
     vm->ic++;
 }
 
-void stringToOp(char *string){
-    char buffer[3][MAX_WORD_SIZE];
-    if (string == NULL)
-        return;
-
-    for (int i=0, j = 0; string[i] != '\0'; i++){
-        if (i > 0){
-            if (string[i] == ' ' && string[i-1] != ' '){
-                if (++j == 3)
-                    return;
-                continue;
-            }
-
-        }
+int stringToOp(char *string, VM_op_code *n){
+    if (strcmp(string, "WORD")){
+        if (n != NULL) *n = vWORD;
+    }else if (strcmp(string, "EQU")){
+        if (n != NULL) *n = vEQU;
+    }else if (strcmp(string, "TAB")){
+        if (n != NULL) *n = vTAB;
+    }else if (strcmp(string, "MVI")){
+        if (n != NULL) *n = vMVI;
+    }else if (strcmp(string, "MOV")){
+        if (n != NULL) *n = vMOV;
+    }else if (strcmp(string, "ADD")){
+        if (n != NULL) *n = vADD;
+    }else if (strcmp(string, "PRINT")){
+        if (n != NULL) *n = vPRINT;
+    }else{
+        return 0;
     }
+    return 1;
+}
+
+int opNumArgs(VM_op_code op){
+    switch(op){
+        case vWORD:
+            return 1;
+        case vEQU:
+            return 1;
+        case vTAB:
+            return 1;
+        case vMVI:
+            return 2;
+        case vMOV:
+            return 2;
+        case vADD:
+            return 2;
+        case vPRINT:
+            return 1;
+    }
+    return 0;
 }
 
 void vmLoadCommands(VM_t vm, char *string){
-    char buffer[MAX_LINE_SIZE];
+    char buffer[4][MAX_WORD_SIZE];
     int i, j;
-    
-    for(i = 0, j = 0; string[i] != '\0'; i++){
-        if (string[i] == '\n'){
-            j = 0;
-            printf("%s\n", buffer);
+    char* line;
+    char* token; 
+    char* rest_b = strdup(string); 
+    char* rest = rest_b;
+
+    char* label = NULL;
+    VM_op_code n;
+    char* args[2] = {NULL, NULL};
+  
+    while ((line = strtok_r(rest, "\n", &rest))){
+        j = 0;
+        while ((token = strtok_r(line, " ", &line))){
+            strcpy(buffer[j++], token);
         }
-        else {
-            buffer[j++] = string[i];
+        if (stringToOp(buffer[0], &n)){
+            label = NULL;
+            for (i = 0; i< opNumArgs(n); i++)
+                args[i] = buffer[i+1];
+        }else if (stringToOp(buffer[1], &n)){
+            label = NULL;
+            for (i = 0; i< opNumArgs(n); i++)
+                args[i] = buffer[i+2];
+        }else{
+            continue;
         }
+        vmAddOp(vm,label,n,args[0], args[1]);
     }
-    printf("%s\n", buffer);
+    
+    free(token);
+    free(rest_b);
+    exit (0); 
 }
