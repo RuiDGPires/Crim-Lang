@@ -96,9 +96,6 @@ int main(int argc,char *argv[]){
     /* Create a syntax tree with the token list */
     stLink syntax_tree = program(token_list);
     tokenListFree(token_list);
-    if (!test_syntax) sTreePrint(syntax_tree);
-    else{
 
-    }
     sTreeFree(syntax_tree);
 }

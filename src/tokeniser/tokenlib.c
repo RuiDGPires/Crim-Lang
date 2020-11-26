@@ -105,7 +105,7 @@ Token tokenCreate(int type, const char string[]){
     }
 
     if (sym == ODDSYM){
-        fprintf(stderr,"********\nInvalid token found\n********\n");
+        printf("ERROR: Invalid token found\n");
         exit(EXIT_FAILURE);
     }
 

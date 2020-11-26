@@ -11,18 +11,22 @@ if [[ ! -f $1 ]]; then
     exit 0
 fi
 
-files=$(ls inputs)
+files=$(ls inputs/*.crim)
 
 for file in $files; do
+    file=${file#inputs/}
     echo "Testing ${file}"
 
-    ./${1} inputs/${file} -t s > outputs/${file%.*}-log.txt
+    ./${1} inputs/${file} -t s > outputs/${file%.*}.out
+
+    diff inputs/${file%.*}.out outputs/${file%.*}.out > outputs/${file%.*}-log.txt
 
     if [[ $? -eq 1 ]]
     then
         echo "Test failed: ${file}, check log"
     else
         rm outputs/${file%.*}-log.txt
+        rm outputs/${file%.*}.out
     fi
-    
+
 done
