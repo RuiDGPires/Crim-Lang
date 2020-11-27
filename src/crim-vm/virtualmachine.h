@@ -5,16 +5,25 @@
 
 typedef struct vm *VM_t;
 
-VM_t vmCreate();
 
-void vmFree(VM_t vm);
+typedef enum vm_operation_code{
+    vBR = 0, /* branch */
+    vADD,    /* add  */
+    vLOAD,   /* load */
+    vSTR,    /* store */
+    vJAL,    /* jump register */
+    vAND,    /* bitwise and */
+    vLDR,    /* load register */
+    vSTR,    /* store register */
+    vRTI,    /* unused */
+    vNOT,    /* bitwise not */
+    vLDI,    /* load indirect */
+    vSTI,    /* store indirect */
+    vJMP,    /* jump */
+    vRES,    /* reserved (unused) */
+    vLEA,    /* load effective address */
+    vTRAP    /* execute trap */
+} VM_opcode_t;
 
-void vmAddOp(VM_t vm, char *label, VM_op_code op, char *arg1, char *arg2);
-
-void vmRun(VM_t vm);
-
-void vmPrintMem(VM_t vm);
-
-void vmLoadCommands(VM_t vm, char *string);
 
 #endif
