@@ -1,3 +1,4 @@
 *.o
 crim
+*/target/
 src/crim-vm/target/
